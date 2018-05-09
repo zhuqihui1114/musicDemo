@@ -1,37 +1,44 @@
 <template>
   <div class="recommend" ref="recommend">
-    <div class="recommend-content">
-      <div class="slider-wrapper" v-if="recommends.length">
-        <slider>
-          <div v-for="item in recommends">
-            <a :href="item.linkUrl">
-              <img class="needsclick" :src="item.picUrl">
-            </a>
-          </div>
-        </slider>
-      </div>
-      <div class="recommend-list">
-        <h1 class="list-title">热门歌单推荐</h1>
-        <ul>
-          <li @click="selectItem(item)" v-for="item in discList" class="item">
-            <div class="icon">
-              <img width="60" height="60" :src="item.imgurl">
+    <scroll ref="scroll" class="recommend-content" :data="discList">
+      <div>
+        <div class="slider-wrapper" v-if="recommends.length">
+          <slider>
+            <div v-for="item in recommends">
+              <a :href="item.linkUrl">
+                <img class="needsclick" @load="loadImage" :src="item.picUrl">
+              </a>
             </div>
-            <div class="text">
-              <h2 class="name" v-html="item.creator.name"></h2>
-              <p class="desc" v-html="item.dissname"></p>
-            </div>
-          </li>
-        </ul>
+          </slider>
+        </div>
+        <div class="recommend-list">
+          <h1 class="list-title">热门歌单推荐</h1>
+          <ul>
+            <li @click="selectItem(item)" v-for="item in discList" class="item">
+              <div class="icon">
+                <img width="60" height="60" v-lazy="item.imgurl">
+              </div>
+              <div class="text">
+                <h2 class="name" v-html="item.creator.name"></h2>
+                <p class="desc" v-html="item.dissname"></p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
+      <div class="loading-container" v-show="!discList.length">
+        <loading></loading>
+      </div>
+    </scroll>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-  import {getRecommend, getDiscList} from '../../api/recommend'
+  import {getRecommend, getDiscList, getSongList} from '../../api/recommend'
   import {ERR_OK} from '../../api/config'
   import Slider from '../../base/slider/slider'
+  import Scroll from '../../base/scroll/scroll'
+  import Loading from '../../base/loading/loading'
 
   export default {
     data() {
@@ -42,7 +49,9 @@
     },
     created() {
       this._getRecommend()
-      this._getDiscList()
+      setTimeout(() => {
+        this._getDiscList()
+      }, 1000)
     },
     methods: {
       _getRecommend() {
@@ -58,10 +67,35 @@
             this.discList = res.data.list
           }
         })
+      },
+      loadImage() {
+        if (!this.checkloaded) {
+          this.checkloaded = true
+          this.$refs.scroll.refresh()
+        }
+      },
+      selectItem(item) {
+        this.$router.push({
+          path: `/recommend/${item.dissid}`
+        })
+        this._getSongList(item)
+      },
+      _getSongList(item) {
+        if (!item.dissid) {
+          this.$router.push('/recommend')
+          return
+        }
+        getSongList(item.dissid).then((res) => {
+          if (res.code === ERR_OK) {
+            console.log(res.cdlist[0].songlist)
+          }
+        })
       }
     },
     components: {
-      Slider
+      Slider,
+      Loading,
+      Scroll
     }
   }
 </script>
