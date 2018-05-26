@@ -73,7 +73,8 @@
         </div>
       </div>
     </transition>
-    <audio ref="audio" :src="currentSong.url" @playing="ready" @error="error" @timeupdate="updateTime"></audio>
+    <audio ref="audio" :src="currentSong.url" @playing="ready" @error="error" @timeupdate="updateTime"
+           @ended="end"></audio>
   </div>
 </template>
 
@@ -178,6 +179,17 @@
         }
         this.setPlayingState(!this.playing)
       },
+      end() {
+        if (this.mode === playMode.loop) {
+          this.loop()
+        } else {
+          this.next()
+        }
+      },
+      loop() {
+        this.$refs.audio.currentTime = 0
+        this.$refs.audio.play()
+      },
       next() {
         if (!this.songReady) {
           return
@@ -237,7 +249,14 @@
         } else {
           list = this.sequenceList
         }
+        this.resetCurrentIndex(list)
         this.setPlaylist(list)
+      },
+      resetCurrentIndex(list) {
+        let index = list.findIndex((item) => {
+          return item.id === this.currentSong.id
+        })
+        this.setCurrentIndex(index)
       },
       _pad(num, n = 2) {
         let len = num.toString().length
@@ -271,7 +290,10 @@
       })
     },
     watch: {
-      currentSong() {
+      currentSong(newSong, oldSong) {
+        if (newSong.id === oldSong.id) {
+          return
+        }
         this.$nextTick(() => {
           this.$refs.audio.play()
         })
