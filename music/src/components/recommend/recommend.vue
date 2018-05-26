@@ -30,16 +30,18 @@
         <loading></loading>
       </div>
     </scroll>
+    <router-view></router-view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-  import {getRecommend, getDiscList, getSongList} from '../../api/recommend'
+  import {getRecommend, getDiscList} from '../../api/recommend'
   import {ERR_OK} from '../../api/config'
   import Slider from '../../base/slider/slider'
   import Scroll from '../../base/scroll/scroll'
   import Loading from '../../base/loading/loading'
   import {playlistMixin} from '../../common/js/mixin'
+  import {mapMutations} from 'vuex'
 
   export default {
     mixins: [playlistMixin],
@@ -51,9 +53,8 @@
     },
     created() {
       this._getRecommend()
-      setTimeout(() => {
-        this._getDiscList()
-      }, 1000)
+
+      this._getDiscList()
     },
     methods: {
       handlePlaylist(playlist) {
@@ -86,19 +87,11 @@
         this.$router.push({
           path: `/recommend/${item.dissid}`
         })
-        this._getSongList(item)
+        this.setDisc(item)
       },
-      _getSongList(item) {
-        if (!item.dissid) {
-          this.$router.push('/recommend')
-          return
-        }
-        getSongList(item.dissid).then((res) => {
-          if (res.code === ERR_OK) {
-            console.log(res.cdlist[0].songlist)
-          }
-        })
-      }
+      ...mapMutations({
+        setDisc: 'SET_DISC'
+      })
     },
     components: {
       Slider,
