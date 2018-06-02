@@ -104,6 +104,7 @@
         } else {
           this.insertSong(item)
         }
+        this.$emit('select', item)
       },
       getDisplayName(item) {
         if (item.type === TYPE_SINGER) {
