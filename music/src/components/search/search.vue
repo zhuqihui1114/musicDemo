@@ -1,12 +1,76 @@
 <template>
   <div class="search">
-    search
+    <div class="search-box-wrapper">
+      <SearchBox ref="searchBox" @query="onQueryChange"></SearchBox>
+    </div>
+    <div ref="shortcutWrapper" class="shortcut-wrapper" v-show="!query">
+        <div class="shortcut">
+          <div class="hot-key">
+            <h1 class="title">热门搜索</h1>
+            <ul>
+              <li @click="addQuery(item.k)" class="item" v-for="item in hotKey">
+                <span>{{item.k}}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+    </div>
+    <div class="search-result" v-show="query" ref="searchResult">
+      <suggest @listScroll="blurInput" ref="suggest" :query="query"></suggest>
+    </div>
+    <router-view></router-view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-  export default {
+  import SearchBox from '../../base/search-box/search-box.vue'
+  import {getHotKey} from '../../api/search'
+  import {ERR_OK} from '../../api/config'
+  import Suggest from '../../components/suggest/suggest'
+  import {playlistMixin} from 'common/js/mixin'
 
+  export default {
+    mixins: [playlistMixin],
+    data() {
+      return {
+        hotKey: [],
+        query: ''
+      }
+    },
+    components: {
+      SearchBox,
+      Suggest
+    },
+    created() {
+      this._getHotKey()
+    },
+    methods: {
+      handlePlaylist(playlist) {
+        const bottom = playlist.length > 0 ? '60px' : ''
+
+        this.$refs.searchResult.style.bottom = bottom
+        this.$refs.suggest.refresh()
+
+//        this.$refs.shortcutWrapper.style.bottom = bottom
+//        this.$refs.shortcut.refresh()
+      },
+      addQuery(query) {
+        this.$refs.searchBox.setQuery(query)
+      },
+      onQueryChange(query) {
+        this.query = query
+      },
+      blurInput() {
+        this.$refs.searchBox.blur()
+      },
+      _getHotKey() {
+        getHotKey().then((res) => {
+          if (res.code === ERR_OK) {
+            this.hotKey = res.data.hotkey.slice(0, 10)
+          }
+        })
+      }
+    }
   }
 </script>
 
