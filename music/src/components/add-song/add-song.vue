@@ -40,16 +40,16 @@
 </template>
 
 <script type="text/ecmascript-6">
-  import SearchBox from 'base/search-box/search-box'
-  import SongList from 'base/song-list/song-list'
-  import SearchList from 'base/search-list/search-list'
-  import Scroll from 'base/scroll/scroll'
-  import Switches from 'base/switches/switches'
-  import TopTip from 'base/top-tip/top-tip'
-  import Suggest from 'components/suggest/suggest'
-  import {searchMixin} from 'common/js/mixin'
+  import SearchBox from '../../base/search-box/search-box'
+  import Suggest from '../../components/suggest/suggest'
+  import SongList from '../../base/song-list/song-list'
+  import SearchList from '../../base/search-list/search-list'
+  import Scroll from '../../base/scroll/scroll'
+  import Switches from '../../base/switches/switches'
+  import TopTip from '../../base/top-tip/top-tip'
+  import {searchMixin} from '../../common/js/mixin'
   import {mapGetters, mapActions} from 'vuex'
-  import Song from 'common/js/song'
+  import Song from '../../common/js/song'
 
   export default {
     mixins: [searchMixin],
@@ -77,13 +77,6 @@
     methods: {
       show() {
         this.showFlag = true
-        setTimeout(() => {
-          if (this.currentIndex === 0) {
-            this.$refs.songList.refresh()
-          } else {
-            this.$refs.searchList.refresh()
-          }
-        }, 20)
       },
       hide() {
         this.showFlag = false
