@@ -9,10 +9,10 @@
             <span class="clear" @click="showConfirm"><i class="icon-clear"></i></span>
           </h1>
         </div>
-        <scroll class="list-content" ref="listContent" :data="sequenceList" >
+        <scroll class="list-content" ref="listContent" :data="sequenceList">
           <transition-group ref="list" name="list" tag="ul">
             <li class="item" v-for="(item,index) in sequenceList" :key="item.id"
-                @click="selectItem(item,index)" ref="listItem">
+                @click="selectItem(item,index)">
               <i class="current" :class="getCurrentIcon(item)"></i>
               <span class="text">{{item.name}}</span>
               <span class="like" @click.stop="toggleFavorite(item)">
@@ -97,7 +97,7 @@
         const index = this.sequenceList.findIndex((song) => {
           return current.id === song.id
         })
-        this.$refs.listContent.scrollToElement(this.$refs.listItem[index], 300)
+        this.$refs.listContent.scrollToElement(this.$refs.list.$el.children[index], 300)
       },
       deleteOne(item) {
         this.deleteSong(item)
