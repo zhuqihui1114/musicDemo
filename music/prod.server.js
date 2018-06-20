@@ -1,6 +1,7 @@
 var express = require('express')
 var config = require('./config/index')
 var axios = require('axios')
+var bodyParser = require('body-parser')
 
 var port = process.env.PORT || config.build.port
 
@@ -16,6 +17,36 @@ apiRoutes.get('/getDiscList', function (req, res) {
       host: 'c.y.qq.com'
     },
     params: req.query
+  }).then((response) => {
+    res.json(response.data)
+  }).catch((e) => {
+    console.log(e)
+  })
+})
+
+apiRoutes.get('/getSongList', function (req, res) {
+  var url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+  axios.get(url, {
+    headers: {
+      referer: 'https://c.y.qq.com/',
+      host: 'c.y.qq.com'
+    },
+    params: req.query
+  }).then((response) => {
+    res.json(response.data)
+  }).catch((e) => {
+    console.log(e)
+  })
+})
+
+apiRoutes.post('/getPurlUrl', bodyParser.json(), function (req, res) {
+  const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+  axios.post(url, req.body, {
+    headers: {
+      referer: 'https://y.qq.com/',
+      origin: 'https://y.qq.com',
+      'Content-type': 'application/x-www-form-urlencoded'
+    }
   }).then((response) => {
     res.json(response.data)
   }).catch((e) => {
